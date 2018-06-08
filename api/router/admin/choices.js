@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const Choice = require('./../../models/choice');
+
+// refernced schema
 const Category = require('./../../models/category')
 
 const storage = multer.diskStorage({

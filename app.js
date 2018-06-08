@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const adminRoutes = require('./api/router/admins');
+const itemRoutes = require('./api/router/items');
 //const employeeRoutes = require('./api/router/');
 
 //mongoose.connect('mongodb+srv://woodberry-project:woodberry-project@woodeberry-project-nesxf.mongodb.net/test?retryWrites=true')
@@ -28,6 +29,7 @@ next();
 
 app.use('/admin', adminRoutes);
 //app.use('/employee', employeeRoutes);
+app.use('/item', itemRoutes);
 
 app.use((req, res,next) => {
     const error = new Error('Not Found');
