@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema({
         required: true
     },
     employee_resetPasswordToken: String,
-    employee_resetPasswordExpires: Date
+    employee_resetPasswordExpires: String
 });
 
 module.exports =  mongoose.model('User',userSchema);
