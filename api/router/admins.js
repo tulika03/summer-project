@@ -86,12 +86,12 @@ router.post('/login',(req, res, next) => {
           });
       }
       if(result) {
-          const token = jwt.sign({  
-                  admin_email: admin[0].admin_email,
-                  _id: admin[0]._id
-              },
-              process.env.JWT_KEY,
-              {
+        const token = jwt.sign({  
+            admin_email: admin[0].admin_email,
+            _id: admin[0]._id
+        },
+        process.env.JWT_KEY,
+        {
                   expiresIn: '1h'
               }
           );
