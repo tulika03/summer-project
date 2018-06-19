@@ -28,7 +28,7 @@ router.get('/viewZone', (req, res,next) => {
 });
 
 //view entry of a Zone
-router.get('/view/:zone_Id', (req, res,next) => {
+router.get('/viewZone/:zone_Id', (req, res,next) => {
     Zone.find({zone_Id: req.params._id})
     .exec()
     .then(result => {
