@@ -29,7 +29,7 @@ router.get('/viewZone', (req, res,next) => {
 
 //view entry of a Zone
 router.get('/viewZone/:zone_Id', (req, res,next) => {
-    Zone.find({zone_Id: req.params._id})
+    Zone.find({_id:req.params.zone_Id})
     .exec()
     .then(result => {
         if(result.length > 0)
@@ -41,6 +41,11 @@ router.get('/viewZone/:zone_Id', (req, res,next) => {
                 message: 'entry not found....'
             })
         }
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
     })
 });
 

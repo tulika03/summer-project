@@ -11,10 +11,12 @@ const Admin = require('../models/admin');
 const employeeRoutes = require('./admin/employees');
 const categoryRoutes = require('./admin/categories');
 const choiceRoutes = require('./admin/choices');
+const zoneRoutes=require('./admin/zones');
 
  router.use('/employee', employeeRoutes);
  router.use('/category', categoryRoutes);
  router.use('/choice', choiceRoutes);
+router.use('/zone',zoneRoutes);
 
 require('./../../env');
 
