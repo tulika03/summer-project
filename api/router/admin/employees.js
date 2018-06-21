@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Employee = require('./../../models/employee');
 const bcrypt = require('bcrypt');
 
+// env file has been added
 require('./../../../env');
 
 router.post('/addEmployee', (req, res, next) => {
