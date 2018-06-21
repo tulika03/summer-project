@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
  const nodemailer = require('nodemailer');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
-// env file has been added
+
  require('./../../env');
 
  // employee login
