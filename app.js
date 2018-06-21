@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const adminRoutes = require('./api/router/admins');
 const itemRoutes = require('./api/router/items');
-const employeeRoutes = require('./api/router/employees');
+//const employeeRoutes = require('./api/router/employees');
 
 //mongoose.connect('mongodb+srv://woodberry-project:woodberry-project@woodeberry-project-nesxf.mongodb.net/test?retryWrites=true')
 

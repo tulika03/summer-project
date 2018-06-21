@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
 
- require('./../../env');
+
 
  // employee login
 
