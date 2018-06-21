@@ -22,7 +22,7 @@ router.post('/addEmployee', (req, res, next) => {
                         employee_contact: req.body.employee_contact,
                         employee_username: req.body.employee_username,
                         employee_email: req.body.employee_email,
-                        employee_password: req.body.employee_password
+                        employee_password: hash
                 });
                     employee.save()
                     .then(result => {
@@ -64,8 +64,8 @@ router.post('/addEmployee', (req, res, next) => {
     });
 
     //view entry of an employee
-    router.get('/view/:employee_Id', (req, res,next) => {
-        Employee.find({employee_Id: req.params.employee_Id})
+    router.get('/view/:employee_id', (req, res,next) => {
+        Employee.find({_id: req.params.employee_id})
         .exec()
         .then(result => {
             if(result.length > 0)
@@ -82,10 +82,10 @@ router.post('/addEmployee', (req, res, next) => {
 
     //update employee record
 
-    router.patch('/update/:employee_Id',(req, res, next) => {
-        const employee_Id = req.params.employee_Id;
-        console.log(employee_Id)
-        Employee.update({employee_Id: employee_Id},{$set: {
+    router.patch('/update/:employeeId',(req, res, next) => {
+        const id = req.params.employeeId;
+        Employee.update({_id: id},{$set: {
+            employee_Id: req.body.employee_Id,
             employee_firstName: req.body.employee_firstName,
             employee_lastName: req.body.employee_lastName,
             employee_contact:req.body.employee_contact,
@@ -106,9 +106,9 @@ router.post('/addEmployee', (req, res, next) => {
 
         // delete an employee detail
 
-        router.delete('/delete/:employee_Id', (req,res,next) => {
-            const id = req.params.employee_Id;
-            Employee.findOneAndRemove({employee_Id: id})
+        router.delete('/delete/:employeeId', (req,res,next) => {
+            const id = req.params.employeeId;
+            Employee.findOneAndRemove({_id: id})
                 .exec()
                 .then(result => {
                 console.log(result);

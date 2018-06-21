@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
 
+ require('./../../env');
 
  // employee login
 
@@ -20,12 +21,13 @@ router.post('/Employeelogin',(req, res, next) => {
      console.log('then block' + employee)
      if(employee.length < 1)
     {
+      console.log(" first if block in then");
         return res.status(401).json({
          message: 'Authentication failed....'
      });
    }
  bcrypt.compare(req.body.employee_password, employee[0].employee_password, (err, result) => {
-     //  console.log('bcrypt compare block')
+     console.log('bcrypt compare block')
      if(err) {
          console.log('bcrypt if error block')
          return res.status(401).json({
@@ -33,6 +35,7 @@ router.post('/Employeelogin',(req, res, next) => {
          });
      }
      if(result) {
+       console.log("result block bcrypt")
          const token = jwt.sign({  
                  employee_password: employee[0].employee_password,
                  _id: employee[0]._id
