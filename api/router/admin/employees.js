@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Employee = require('./../../models/employee');
 const bcrypt = require('bcrypt');
 
+// env file added
 require('./../../../env');
 
 router.post('/addEmployee', (req, res, next) => {
@@ -22,7 +23,8 @@ router.post('/addEmployee', (req, res, next) => {
                         employee_contact: req.body.employee_contact,
                         employee_username: req.body.employee_username,
                         employee_email: req.body.employee_email,
-                        employee_password: hash
+                        employee_password: password
+                    
                 });
                     employee.save()
                     .then(result => {
