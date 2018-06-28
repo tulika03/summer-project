@@ -82,9 +82,9 @@ router.patch('/editJobsiteItems/:jobsiteId', (req, res, next) => {
         Jobsite.update({ _id: id},{$set: {
                 job_zone_item: req.body.job_zone_item
                 }
-        })        
+        }) 
+        .exec()       
     })
-    .exec()
     .then(result => {
         res.status(200).json({
             message: 'Data updated successfully...',
