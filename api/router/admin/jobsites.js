@@ -99,4 +99,46 @@ router.patch('/editJobsiteItems/:jobsiteId', (req, res, next) => {
 
 });
 
+// update or edit eployee field
+router.patch('/editJobsiteEmployees/:jobsiteId', (req, res, next) => {
+    Employee.find(req.body.job_employee)
+    .then(output => {
+        const id = req.params.jobsiteId;
+        console.log(id)
+        Jobsite.update({ _id: id},{$set: {
+                job_employee: req.body.job_employee
+                }
+        }) 
+        .exec()       
+    })
+    .then(result => {
+        res.status(200).json({
+            message: 'Data updated successfully...',
+            result: result
+        })
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    })      
+
+});
+
+//delete Jobsite 
+router.delete('/deleteJobsite/:jobsiteId', (req,res,next) => {
+    const id = req.params.jobsiteId;
+    Jobsite.findOneAndRemove({_id: id})
+        .exec()
+        .then(result => {
+        console.log(result);
+        res.status(200).json({
+        message: 'You have deleted the Jobsite' + result
+         })
+    })
+    .catch(err => {console.log(err);
+        res.status(500).json({error: err })
+    });
+});
+
 module.exports = router;
