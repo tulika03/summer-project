@@ -3,10 +3,12 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const multer = require('multer');
 
+
+const checkAuth = require('../../middleware/checkAuth');
+
 const Zone = require('./../../models/zone');
 
-require('./../../../env');
-
+require('./../../../env')
 // add new zone
 
 router.post('/addZone', checkAuth, (req, res, next) => {
@@ -32,7 +34,7 @@ router.post('/addZone', checkAuth, (req, res, next) => {
 // update or edit details
 
 router.patch('/editZone/:zoneId', checkAuth, (req, res, next) => {
-        const id = req.params. _id;
+        const id = req.params.zoneId;
         console.log(id)
         Zone.update({ _id: id},{$set: {                
                 zone_name: req.body.zone_name

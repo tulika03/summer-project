@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const adminRoutes = require('./api/router/admins');
 const itemRoutes = require('./api/router/items');
 const employeeRoutes = require('./api/router/employees');
-
+const zoneRoutes = require('./api/router/zones')
 //mongoose.connect('mongodb+srv://woodberry-project:woodberry-project@woodeberry-project-nesxf.mongodb.net/test?retryWrites=true')
 
 mongoose.connect('mongodb://woodberry-project:woodberry-project@woodeberry-project-shard-00-00-nesxf.mongodb.net:27017,woodeberry-project-shard-00-01-nesxf.mongodb.net:27017,woodeberry-project-shard-00-02-nesxf.mongodb.net:27017/test?replicaSet=woodeberry-project-shard-0&ssl=true&authSource=admin')
@@ -30,7 +30,7 @@ next();
 app.use('/admin', adminRoutes);
 app.use('/employee', employeeRoutes);
 app.use('/item', itemRoutes);
-
+app.use('/zone', zoneRoutes);
 app.use((req, res,next) => {
     const error = new Error('Not Found');
 error.status = 404;
