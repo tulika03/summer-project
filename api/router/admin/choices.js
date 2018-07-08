@@ -8,6 +8,11 @@ const Choice = require('./../../models/choice');
 // refernced schema
 const Category = require('./../../models/category')
 
+
+const checkAuth = require('../../middleware/checkAuth');
+
+require('./../../../env');
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null,'./uploads/choices');
@@ -21,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 
 // add new choice 
-router.post('/addChoice', upload.any(), (req, res, next) => {
+router.post('/addChoice',checkAuth, upload.any(), (req, res, next) => {
     Category.findById(req.body.categoryId)
     .then(output => {
         console.log(output + " " + req.files)
@@ -61,7 +66,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
 
     // view all choices
 
-    router.get('/viewChoice', (req,res,next) => {
+    router.get('/viewChoice', checkAuth, (req,res,next) => {
         Choice.find()
         .populate('category')
         .exec()
@@ -89,7 +94,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
 
     // view by id
 
-    router.get('/viewChoice/:choiceId', (req,res,next) => {
+    router.get('/viewChoice/:choiceId', checkAuth, (req,res,next) => {
         Choice.findById(req.params.choiceId)
         .exec()
         .then(doc => {
@@ -110,7 +115,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
 
     // update the choice
 
-    router.patch('/update/:choiceId' , (req,res,next) => {
+    router.patch('/update/:choiceId', checkAuth, (req,res,next) => {
         console.log(req.files)
         const id = req.params.choiceId;
         Choice.update({_id: id}, {$set: {
@@ -139,7 +144,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
         });
     // change image of choice
 
-    router.patch('/updateImage/:choiceId', upload.single('choice_photo'), (req,res,next) => {
+    router.patch('/updateImage/:choiceId', checkAuth, upload.single('choice_photo'), (req,res,next) => {
         console.log(req.file)
         const id = req.params.choiceId;
         
@@ -166,7 +171,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
     
     // change choice file
 
-    router.patch('/updateFile/:choiceId', upload.single('choice_file'), (req,res,next) => {
+    router.patch('/updateFile/:choiceId', checkAuth, upload.single('choice_file'), (req,res,next) => {
         console.log(req.file)
         const id = req.params.choiceId;
         
@@ -194,7 +199,7 @@ router.post('/addChoice', upload.any(), (req, res, next) => {
 
     //delete choice details
 
-    router.delete('/delete/:choiceId', (req,res,next) => {
+    router.delete('/delete/:choiceId', checkAuth, (req,res,next) => {
         const id = req.params.choiceId;
         Choice.findOneAndRemove({_id: id})
             .exec()

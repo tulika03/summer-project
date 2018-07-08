@@ -4,9 +4,12 @@ const Category = require('./../../models/category');
 
 const mongoose = require('mongoose');
 
+const checkAuth = require('../../middleware/checkAuth');
+
+require('./../../../env');
 // add new category
 
-router.post('/addCategory', (req, res, next) => {
+router.post('/addCategory', checkAuth, (req, res, next) => {
     const category = new Category({
         _id: mongoose.Types.ObjectId(),
         category_id: req.body.category_id,
@@ -34,14 +37,11 @@ router.get('/viewCategory', (req, res, next) => {
     .then(result => {
         if(result.length > 0)
         {
-            res.status(200).json({
-                result
-            })
+            res.status(200).json(result)
         }
         else {
             res.status(404).json({
-                message: 'No details found...',
-                data: result
+                message: 'No details found...'
             })
         }
     })
@@ -55,20 +55,17 @@ router.get('/viewCategory', (req, res, next) => {
 
 // get details of a paricular order
 
-router.get('/viewCategory/:categoryId', (req, res,next) => {
+router.get('/viewCategory/:categoryId', checkAuth, (req, res,next) => {
     Category.find({_id: req.params.categoryId})
     .exec()
     .then(result => {
         if(result.length > 0)
         {
-            res.status(200).json({
-                result
-            })
+            res.status(200).json(result)
         }
         else {
             res.status(404).json({
-                message: 'No data found...',
-                result: result
+                message: 'No data found...'
             })
         }
     })
@@ -83,10 +80,8 @@ router.get('/viewCategory/:categoryId', (req, res,next) => {
 
 // update or edit details
 
-router.patch('/editCategory/:categoryId', (req, res, next) => {
-        const id = req.params.categoryId;
-        console.log(categoryId)
-        Category.update({ _id: id},{$set: {
+router.patch('/editCategory/:category_Id', (req, res, next) => {
+        Category.update({_id: req.params.category_Id},{$set: {
                 category_id: req.body.category_id,
                 category_name: req.body.category_name
                 }
@@ -108,7 +103,7 @@ router.patch('/editCategory/:categoryId', (req, res, next) => {
 
 // delete the category
 
-router.delete('/delete/:categoryId', (req, res,next) => {
+router.delete('/delete/:categoryId', checkAuth, (req, res,next) => {
     const id = req.params.categoryId;
     Category.findOneAndRemove({_id: id })
     .exec()

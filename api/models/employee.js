@@ -10,8 +10,12 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    employee_LastName: {
+    employee_lastName: {
         type: String
+    },
+    employee_photo: {
+        type: String,
+        required: true
     },
     employee_contact: {
         type: Number,

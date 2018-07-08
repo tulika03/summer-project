@@ -5,9 +5,11 @@ const multer = require('multer');
 
 const Zone = require('./../../models/zone');
 
+require('./../../../env');
+
 // add new zone
 
-router.post('/addZone', (req, res, next) => {
+router.post('/addZone', checkAuth, (req, res, next) => {
     const zone = new Zone({
         _id: mongoose.Types.ObjectId(),
         zone_name: req.body.zone_name
@@ -29,7 +31,7 @@ router.post('/addZone', (req, res, next) => {
 
 // update or edit details
 
-router.patch('/editZone/:zoneId', (req, res, next) => {
+router.patch('/editZone/:zoneId', checkAuth, (req, res, next) => {
         const id = req.params. _id;
         console.log(id)
         Zone.update({ _id: id},{$set: {                
@@ -53,7 +55,7 @@ router.patch('/editZone/:zoneId', (req, res, next) => {
 
 // delete the zone
 
-router.delete('/deleteZone/:zoneId', (req, res,next) => {
+router.delete('/deleteZone/:zoneId', checkAuth, (req, res,next) => {
     const id = req.params.zoneId;
     Zone.findOneAndRemove({_id: id })
     .exec()
