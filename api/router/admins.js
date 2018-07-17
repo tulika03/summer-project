@@ -17,13 +17,14 @@ const jobsiteRoutes=require('./admin/jobsites');
  router.use('/employee', employeeRoutes);
  router.use('/category', categoryRoutes);
  router.use('/choice', choiceRoutes);
-router.use('/zone',zoneRoutes);
-router.use('/jobsite',jobsiteRoutes);
+ router.use('/zone',zoneRoutes);
+ router.use('/jobsite',jobsiteRoutes);
 
+ const checkAuth = require('./../middleware/checkAuth')
 require('./../../env');
 
 // add new admin
-router.post('/addAdmin', (req, res, next) => {
+router.post('/addAdmin', checkAuth, (req, res, next) => {
     Admin.find({admin_email: req.body.admin_email})
         .exec()
         .then(data => {
@@ -69,7 +70,7 @@ router.post('/addAdmin', (req, res, next) => {
 
 // admin login
 
-router.post('/login',(req, res, next) => {
+router.post('/login', checkAuth, (req, res, next) => {
      console.log('Login page');
       Admin.find({ admin_email: req.body.admin_email })
       .exec()
@@ -90,12 +91,12 @@ router.post('/login',(req, res, next) => {
           });
       }
       if(result) {
-        const token = jwt.sign({  
-            admin_email: admin[0].admin_email,
-            _id: admin[0]._id
-        },
-        process.env.JWT_KEY,
-        {
+          const token = jwt.sign({  
+                  admin_email: admin[0].admin_email,
+                  _id: admin[0]._id
+              },
+              process.env.JWT_KEY,
+              {
                   expiresIn: '1h'
               }
           );
@@ -114,7 +115,7 @@ router.post('/login',(req, res, next) => {
   
   // forgot password
 
-  router.post('/forgot', function(req, res, next) {
+  router.post('/forgot', checkAuth, function(req, res, next) {
     async.waterfall([
       function(done) {
         crypto.randomBytes(20, function(err, buf) {
@@ -173,7 +174,7 @@ router.post('/login',(req, res, next) => {
 
 // reset password
 
-router.get('/reset/:token', function(req, res) {
+router.get('/reset/:token', checkAuth, function(req, res) {
     User.findOne({ admin_resetPasswordToken: req.params.token, admin_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
         if (!user) {
             console.log('error', 'Password reset token is invalid or has expired.');
@@ -187,7 +188,7 @@ router.get('/reset/:token', function(req, res) {
     });
 });
 
-router.post('/reset/:token', function(req, res) {
+router.post('/reset/:token', checkAuth, function(req, res) {
     async.waterfall([
       function(done) {
         User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
