@@ -9,11 +9,12 @@ const bcrypt = require('bcrypt');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
 
-require('./../../env');
+ const checkAuth = require('./../middleware/checkAuth')
+ require('./../../env');
 
  // employee login
 
-router.post('/Employeelogin',(req, res, next) => {
+router.post('/Employeelogin', checkAuth, (req, res, next) => {
     console.log('Employee Login page');
      Employee.find({ employee_email: req.body.employee_email })
      .exec()
@@ -58,7 +59,7 @@ router.post('/Employeelogin',(req, res, next) => {
  
  // forgot password
 
- router.post('/Employeeforgot', function(req, res, next) {
+ router.post('/Employeeforgot', checkAuth, function(req, res, next) {
    async.waterfall([
      function(done) {
        crypto.randomBytes(20, function(err, buf) {
@@ -117,7 +118,7 @@ router.post('/Employeelogin',(req, res, next) => {
 
 // reset password
 
-router.get('/Employeereset/:token', function(req, res) {
+router.get('/Employeereset/:token', checkAuth, function(req, res) {
   user.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
        if (!user) {
            console.log('error', 'Password reset token is invalid or has expired.');
@@ -131,7 +132,7 @@ router.get('/Employeereset/:token', function(req, res) {
    });
 });
 
-router.post('/Employeereset/:token', function(req, res) {
+router.post('/Employeereset/:token', checkAuth, function(req, res) {
    async.waterfall([
      function(done) {
        user.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
