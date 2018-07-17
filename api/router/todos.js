@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const Todo = require('./../models/todo');
+const checkAuth = require('./../middleware/checkAuth')
+require('./../../env')
 
 // refernced schema
 const Jobsite = require('./../models/jobsite');
@@ -24,7 +26,7 @@ const upload = multer({storage: storage});
 
 
 //add new todo 
-router.post('/addTodo', upload.any(), (req, res, next) => {
+router.post('/addTodo', upload.any(), checkAuth, (req, res, next) => {
     Jobsite.findById(req.body.todo_Jobsite)
     .then(output => {  
         if(req.body.todo_createdBy_user.length>0 && Employee.findById(req.body.todo_createdBy_user))
@@ -568,8 +570,11 @@ router.post('/addTodo', upload.any(), (req, res, next) => {
 
 
 //get todos in which user is assigned
-router.get('/getTodo/:employee_Id', (req,res,next) => {
+router.get('/getTodo/:employee_Id', checkAuth, (req,res,next) => {
     Todo.find().where(todo_assignedTo_user==req.param.employee_Id)
+    .populate({
+        path: 'Jobsite Employee Admin'
+    })
     .exec()
     .then(result => {
         if(result.length > 0)
@@ -591,8 +596,11 @@ router.get('/getTodo/:employee_Id', (req,res,next) => {
 
 
 //get todos in which admin is assigned
-router.get('/getTodo/:Admin_Id', (req,res,next) => {
+router.get('/getTodo/:Admin_Id', checkAuth, (req,res,next) => {
     Todo.find().where(todo_assignedTo_admin==req.param.Admin_Id)
+    .populate({
+        path: 'Jobsite Admin Employee'
+    })
     .exec()
     .then(result => {
         if(result.length > 0)
@@ -614,8 +622,11 @@ router.get('/getTodo/:Admin_Id', (req,res,next) => {
 
 
 //get todos in which user is cc
-router.get('/getTodo_cc/:employee_Id', (req,res,next) => {
+router.get('/getTodo_cc/:employee_Id', checkAuth, (req,res,next) => {
     Todo.find().where(todo_cc_user==req.param.employee_Id)
+    .populate({
+        path: 'Jobsite Employee Admin'
+    })
     .exec()
     .then(result => {
         if(result.length > 0)
@@ -637,8 +648,11 @@ router.get('/getTodo_cc/:employee_Id', (req,res,next) => {
 
 
 //get todos in which admin is cc
-router.get('/getTodo_cc/:Admin_Id', (req,res,next) => {
+router.get('/getTodo_cc/:Admin_Id', checkAuth, (req,res,next) => {
     Todo.find().where(todo_cc_admin==req.param.Admin_Id)
+    .populate({
+        path: 'Jobsite Admin Employee'
+    })
     .exec()
     .then(result => {
         if(result.length > 0)
@@ -660,7 +674,7 @@ router.get('/getTodo_cc/:Admin_Id', (req,res,next) => {
 
 
 //update status of todo
-router.patch('/editTodoStatus/:todoId', (req, res, next) => {
+router.patch('/editTodoStatus/:todoId', checkAuth, (req, res, next) => {
     const id = req.params.todoId;
     console.log(id)
     Todo.update({ _id: id},{$set: {
