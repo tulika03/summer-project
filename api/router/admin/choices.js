@@ -74,10 +74,7 @@ router.post('/addChoice',checkAuth, upload.any(), (req, res, next) => {
         console.log(doc)
     if(doc.length >= 0)
     {
-        res.status(200).json({
-            message: 'Data fetched successfully for all choices.....',
-            doc: doc
-        })
+        res.status(200).json(doc)
     }
     else
     {
@@ -95,11 +92,12 @@ router.post('/addChoice',checkAuth, upload.any(), (req, res, next) => {
     // view by id
 
     router.get('/viewChoice/:choiceId', checkAuth, (req,res,next) => {
-        Choice.findById(req.params.choiceId)
+        Choice.find({_id: req.params.choiceId})
+		.populate('category')
         .exec()
         .then(doc => {
         console.log("from database" + doc)
-        if(doc) {
+        if(doc.length > 0) {
             res.status(200).json(doc)
         }
         else

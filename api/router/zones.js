@@ -24,7 +24,7 @@ router.get('/viewZone', checkAuth, (req, res,next) => {
         
     })
     .catch(err => {
-        consol.log(err)
+        console.log(err)
         error: err
     });
 });
