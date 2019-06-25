@@ -1,3 +1,5 @@
+const LocalStorage = require ('node-localstorage').LocalStorage;
+ localStorage = new LocalStorage('./localStorage');
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -8,26 +10,29 @@ const bcrypt = require('bcrypt');
  const nodemailer = require('nodemailer');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
+ 
 
-require('./../../env');
+ const checkAuth = require('./../middleware/checkAuth')
+ require('./../../env');
 
  // employee login
 
-router.post('/Employeelogin',(req, res, next) => {
+router.post('/Employeelogin', (req, res, next) => {
     console.log('Employee Login page');
      Employee.find({ employee_email: req.body.employee_email })
      .exec()
      .then(employee => {
-     console.log('then block' + employee)
+      localStorage.setItem('loginID', employee[0]._id);
+      console.log('local storage'+localStorage.getItem('loginID'));
+    // console.log('then block' + employee)
      if(employee.length < 1)
     {
-      console.log(" first if block in then");
         return res.status(401).json({
          message: 'Authentication failed....'
      });
    }
  bcrypt.compare(req.body.employee_password, employee[0].employee_password, (err, result) => {
-     console.log('bcrypt compare block')
+     //  console.log('bcrypt compare block')
      if(err) {
          console.log('bcrypt if error block')
          return res.status(401).json({
@@ -35,7 +40,6 @@ router.post('/Employeelogin',(req, res, next) => {
          });
      }
      if(result) {
-       console.log("result block bcrypt")
          const token = jwt.sign({  
                  employee_password: employee[0].employee_password,
                  _id: employee[0]._id
@@ -45,10 +49,11 @@ router.post('/Employeelogin',(req, res, next) => {
                  expiresIn: '1h'
              }
          );
+         const loginID=localStorage.getItem('loginID');
        return  res.status(200).json({
              message: 'Employee has logged in succesfully....',
-             token: token
- 
+             token: token,
+             loginID: loginID
          })
      }
  });
@@ -60,7 +65,7 @@ router.post('/Employeelogin',(req, res, next) => {
  
  // forgot password
 
- router.post('/Employeeforgot', function(req, res, next) {
+ router.post('/Employeeforgot', checkAuth, function(req, res, next) {
    async.waterfall([
      function(done) {
        crypto.randomBytes(20, function(err, buf) {
@@ -69,11 +74,11 @@ router.post('/Employeelogin',(req, res, next) => {
        });
      },
      function(token, done) {
-       Employee.findOne({ employee_email: req.body.employee_email }, function(err, user) {
+      Employee.findOne({ employee_email: req.body.employee_email }, function(err, user) {
            console.log(user);
          if (!user) {
            console.log('error', 'No account with that email address exists.');
-           return res.redirect('/forgot');
+           return res.redirect('/Employeeforgot');
          }
  
          user.resetPasswordToken = token;
@@ -102,7 +107,7 @@ router.post('/Employeelogin',(req, res, next) => {
          subject: 'Password Reset',
          text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-           'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+           'http://' + req.headers.host + '/Employeereset/' + token + '\n\n' +
            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
        };
        transport.sendMail(mailOptions, function(err) {
@@ -112,18 +117,18 @@ router.post('/Employeelogin',(req, res, next) => {
      }
    ], function(err) {
      if (err) return next(err);
-       res.redirect('/forgot')
+       res.redirect('/Employeeforgot');
    });
  });
 
 
 // reset password
 
-router.get('/Employeereset/:token', function(req, res) {
-   User.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+router.get('/Employeereset/:token', checkAuth, function(req, res) {
+  user.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
        if (!user) {
            console.log('error', 'Password reset token is invalid or has expired.');
-           return res.redirect('/forgot');
+           return res.redirect('/Employeeforgot');
        }
        res.render('reset', {
            user: req.user
@@ -133,10 +138,10 @@ router.get('/Employeereset/:token', function(req, res) {
    });
 });
 
-router.post('/Employeereset/:token', function(req, res) {
+router.post('/Employeereset/:token', checkAuth, function(req, res) {
    async.waterfall([
      function(done) {
-       User.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+       user.findOne({ employee_resetPasswordToken: req.params.token, employee_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
          if (!user) {
            console.log('error', 'Password reset token is invalid or has expired.');
            return res.redirect('back');

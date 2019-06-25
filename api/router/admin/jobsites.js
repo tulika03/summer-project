@@ -4,15 +4,16 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const Jobsite = require('./../../models/jobsite');
+const checkAuth = require('./../../middleware/checkAuth')
+require('./../../../env')
 
 // refernced schema
 const Zone = require('./../../models/zone');
-const Item = require('./../../models/item');
 const Employee = require('./../../models/employee');
 
 // add new Jobsite
 
-router.post('/addJobsite', (req, res, next) => {
+router.post('/addJobsite', checkAuth, (req, res, next) => {
     Zone.find(req.body.zone_id).then(Employee.find(req.body.job_employee))
     .then(output => {
         const jobsite = new Jobsite({
@@ -24,7 +25,7 @@ router.post('/addJobsite', (req, res, next) => {
             job_client_email: req.body.job_client_email,
             job_client_city: req.body.job_client_city,
             job_employee: req.body.job_employee,
-            job_zone_item:req.body.job_zone_item
+            job_zone:req.body.job_zone
         })
         return jobsite
             .save()
@@ -44,7 +45,7 @@ router.post('/addJobsite', (req, res, next) => {
 
 // update or edit Jobsite 
 
-router.patch('/editJobsite/:jobsiteId', (req, res, next) => {
+router.patch('/editJobsite/:jobsiteId', checkAuth, (req, res, next) => {
     const id = req.params.jobsiteId;
     console.log(id)
     Jobsite.update({ _id: id},{$set: {
@@ -67,20 +68,19 @@ router.patch('/editJobsite/:jobsiteId', (req, res, next) => {
         res.status(500).json({
             error: err
         })
-    })      
-
+    })  
 });
 
 
-// update or edit Jobsite zone item field
+// update or edit Jobsite zone field
 
-router.patch('/editJobsiteItems/:jobsiteId', (req, res, next) => {
-    Zone.find(req.body.zone_id).then(Item.find(req.body.item_id))
+router.patch('/editJobsiteZones/:jobsiteId', checkAuth, (req, res, next) => {
+    Zone.findById(req.body.job_zone)
     .then(output => {
         const id = req.params.jobsiteId;
         console.log(id)
         Jobsite.update({ _id: id},{$set: {
-                job_zone_item: req.body.job_zone_item
+            job_zone: req.body.job_zone
                 }
         }) 
         .exec()       
@@ -99,9 +99,10 @@ router.patch('/editJobsiteItems/:jobsiteId', (req, res, next) => {
 
 });
 
+
 // update or edit eployee field
-router.patch('/editJobsiteEmployees/:jobsiteId', (req, res, next) => {
-    Employee.find(req.body.job_employee)
+router.patch('/editJobsiteEmployees/:jobsiteId', checkAuth, (req, res, next) => {
+    Employee.findById(req.body.job_employee)
     .then(output => {
         const id = req.params.jobsiteId;
         console.log(id)
@@ -126,7 +127,7 @@ router.patch('/editJobsiteEmployees/:jobsiteId', (req, res, next) => {
 });
 
 //delete Jobsite 
-router.delete('/deleteJobsite/:jobsiteId', (req,res,next) => {
+router.delete('/deleteJobsite/:jobsiteId',checkAuth, (req,res,next) => {
     const id = req.params.jobsiteId;
     Jobsite.findOneAndRemove({_id: id})
         .exec()
@@ -140,5 +141,58 @@ router.delete('/deleteJobsite/:jobsiteId', (req,res,next) => {
         res.status(500).json({error: err })
     });
 });
+
+
+//get all jobsites
+router.get('/viewJobsite', checkAuth, (req, res,next) => {
+    Jobsite.find({}) 
+    .populate({
+       path: 'job_employee job_zone'
+    })   
+    .exec()    
+    .then(result => {
+        if(result.length > 0) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(404).json({
+                message: 'No entries found.....'
+            })
+        }
+        
+    })
+    .catch(err => {
+        console.log(err)
+        error: err
+    });
+});
+
+//view entry of a Jobsite
+router.get('/viewJobsite/:jobsite_Id', checkAuth, (req, res,next) => {
+    Jobsite.findById({_id:req.params.jobsite_Id})
+    .populate({
+        path: 'job_employee job_zone'
+    })
+    .exec()
+    .then(result => {
+        console.log(result.length)
+       // if(result.length > 0)
+      //  {
+            res.status(200).json(result)
+       // }
+       /* else {
+            res.status(404).json({
+                message: 'entry not found....'
+            })
+        }*/
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    })
+});
+
+
 
 module.exports = router;

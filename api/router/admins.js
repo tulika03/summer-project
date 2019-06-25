@@ -5,6 +5,8 @@ const Admin = require('../models/admin');
  const bcrypt = require('bcrypt');
  const jwt = require('jsonwebtoken');
  const async = require('async');
+ const LocalStorage = require ('node-localstorage').LocalStorage;
+ localStorage = new LocalStorage('./localStorage');
  const nodemailer = require('nodemailer');
  const smtpTransport = require('nodemailer-smtp-transport');
  const crypto = require('crypto');
@@ -12,16 +14,19 @@ const employeeRoutes = require('./admin/employees');
 const categoryRoutes = require('./admin/categories');
 const choiceRoutes = require('./admin/choices');
 const zoneRoutes=require('./admin/zones');
+const jobsiteRoutes=require('./admin/jobsites');
 
  router.use('/employee', employeeRoutes);
  router.use('/category', categoryRoutes);
  router.use('/choice', choiceRoutes);
-router.use('/zone',zoneRoutes);
+ router.use('/zone',zoneRoutes);
+ router.use('/jobsite',jobsiteRoutes);
 
+ const checkAuth = require('./../middleware/checkAuth')
 require('./../../env');
 
 // add new admin
-router.post('/addAdmin', (req, res, next) => {
+router.post('/addAdmin', checkAuth, (req, res, next) => {
     Admin.find({admin_email: req.body.admin_email})
         .exec()
         .then(data => {
@@ -67,12 +72,17 @@ router.post('/addAdmin', (req, res, next) => {
 
 // admin login
 
+
 router.post('/login',(req, res, next) => {
      console.log('Login page');
       Admin.find({ admin_email: req.body.admin_email })
       .exec()
       .then(admin => {
-      console.log('then block' + admin)
+        localStorage.setItem('loginID', admin[0]._id);
+        //localStorage.setItem('adminName',admin[0].admin_firstName)
+        console.log('local storage'+localStorage.getItem('loginID'));
+       // console.log('local storage'+localStorage.getItem('adminName'));
+       // console.log('then block' + admin)
       if(admin.length < 1)
      {
          return res.status(401).json({
@@ -88,19 +98,20 @@ router.post('/login',(req, res, next) => {
           });
       }
       if(result) {
-        const token = jwt.sign({  
-            admin_email: admin[0].admin_email,
-            _id: admin[0]._id
-        },
-        process.env.JWT_KEY,
-        {
+          const token = jwt.sign({  
+                  admin_email: admin[0].admin_email,
+                  _id: admin[0]._id
+              },
+              process.env.JWT_KEY,
+              {
                   expiresIn: '1h'
               }
           );
+          const loginID=localStorage.getItem('loginID');
         return  res.status(200).json({
               message: 'Admin has logged in succesfully....',
-              token: token
-  
+              token: token,
+              loginID: loginID
           })
       }
   });
@@ -112,7 +123,7 @@ router.post('/login',(req, res, next) => {
   
   // forgot password
 
-  router.post('/forgot', function(req, res, next) {
+  router.post('/forgot', checkAuth, function(req, res, next) {
     async.waterfall([
       function(done) {
         crypto.randomBytes(20, function(err, buf) {
@@ -171,7 +182,7 @@ router.post('/login',(req, res, next) => {
 
 // reset password
 
-router.get('/reset/:token', function(req, res) {
+router.get('/reset/:token', checkAuth, function(req, res) {
     User.findOne({ admin_resetPasswordToken: req.params.token, admin_resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
         if (!user) {
             console.log('error', 'Password reset token is invalid or has expired.');
@@ -185,7 +196,7 @@ router.get('/reset/:token', function(req, res) {
     });
 });
 
-router.post('/reset/:token', function(req, res) {
+router.post('/reset/:token', checkAuth, function(req, res) {
     async.waterfall([
       function(done) {
         User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
@@ -230,6 +241,26 @@ router.post('/reset/:token', function(req, res) {
     });
   });
 
+    // view details of all admins
 
+    router.get('/viewAdmin', checkAuth, (req, res,next) => {
+        Admin.find()
+        .exec()
+        .then(result => {
+            if(result.length > 0) {
+                res.status(200).json(result);
+            }
+            else {
+                res.status(404).json({
+                    message: 'No entries found.....'
+                })
+            }
+            
+        })
+        .catch(err => {
+            consol.log(err)
+            error: err
+        });
+    });
 
 module.exports = router;

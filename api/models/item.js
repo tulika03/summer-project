@@ -6,7 +6,9 @@ const itemSchema = mongoose.Schema({
     item_file: {type: String},
     item_allowence: {type: Number, required: true},
     category: {type: mongoose.Schema.ObjectId, ref: 'Category', required: true},
-    choices: [{type: mongoose.Schema.ObjectId, ref: 'Choice', required: true}]
+    choices: [{type: mongoose.Schema.ObjectId, ref: 'Choice', required: true}],
+    item_jobsite: {type: mongoose.Schema.ObjectId, ref: 'Jobsite', required: true},
+    item_zone:{type: mongoose.Schema.ObjectId, ref: 'Zone', required: true}
 });
 
 

@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const Item = require('./../models/item');
+const checkAuth = require('./../middleware/checkAuth');
+
+require('./../../env');
 
 // refernced schemas
 const Choice = require('./../models/choice');
@@ -90,8 +93,9 @@ router.post('/addItem', upload.single('item_file'), (req, res, next) => {
             item_file: "http://localhost:3002/uploads/items/"+req.file.originalname,
             item_allowence: req.body.item_allowence,
             category: req.body.item_categoryId,
-            choices: choiceList
-            
+            choices: choiceList,
+            item_jobsite: req.body.item_jobsite,
+            item_zone: req.body.item_zone
         })
         return item
             .save()
@@ -111,79 +115,80 @@ router.post('/addItem', upload.single('item_file'), (req, res, next) => {
 
 // view all the items details
 
-router.get('/viewItem', (req, res, next) => {
-     Item.find()
-    .populate({
-        path: 'choices category'
-    })
-    .exec()
-    .then(result => {
-        if(result.length > 0)
-        {
-            res.status(200).json({
-                result
-            })
-        }
-        else {
-            res.status(404).json({
-                message: 'No details found...',
-                data: result
-            })
-        }
-    })
 
+
+ router.get('/viewItem', checkAuth, (req,res,next) => {
+    let cat_array=[];
+    Item.find()
+    .populate('choices')
+    .populate('category')
+    .populate('item_jobsite')
+    .populate('item_zone')
+    .exec()
+    .then(doc => {
+        //console.log(doc)
+        if(doc.length >= 0)
+        {
+            res.status(200).json(doc)
+        }
+        else
+        {
+            res.status(404).json({message: 'No entries found....'})
+        }
+
+        /*
+        
+        cat_array=doc.category;
+        //console.log(cat_array);
+        Category.find({_id: { $in : cat_array}}).exec()
+            .then(result1 => {
+                res.status(200).json({item : doc[0],category :result1});
+               // res.status(200).json(result1);
+               // console.log(result1);
+            })
+            .catch(err => {
+                res.status(500).json(err);
+            })  */
+    })
     .catch(err => {
+        console.log(err)
         res.status(500).json({
-            error: err
+             error: err
         })
     })
 });
 
-router.get('/viewItems', (req, res, next) => {
-     Item.find()
-    .populate({
-        path: 'choices category'
-    })
-    .exec()
-    .then(result => {
-        if(result.length > 0)
-        {
-            res.status(200).json({
-                result
-            })
-        }
-        else {
-            res.status(404).json({
-                message: 'No details found...',
-                data: result
-            })
-        }
-    })
-
-    .catch(err => {
-        res.status(500).json({
-            error: err
-        })
-    })
-});
 
 // view item detail by id
 
 router.get('/viewItem/:itemId', (req,res,next) => {
+    let cat_array=[];
     Item.findById(req.params.itemId)
-    .populate({
-        path: 'choices category'
-    })
+    .populate('choices')
+    .populate('category')
+    .populate('item_jobsite')
+    .populate('item_zone')
     .exec()
     .then(doc => {
-    console.log("from database" + doc)
-    if(doc) {
-        res.status(200).json(doc)
-    }
-    else
-    {
-        res.status(404).json({message: 'no valid entry found for provided id...'})
-    }
+        console.log( doc)
+        if(doc) {
+            res.status(200).json(doc)
+        }
+        else
+        {
+            res.status(404).json({message: 'no valid entry found for provided id...'})
+        }
+        cat_array=doc.category;
+        //console.log(cat_array);
+        Category.find({_id: { $in : cat_array}}).exec()
+            .then(result1 => {
+                res.status(200).json({item : doc[0], category :result1});
+               // res.status(200).json(result1);
+               // console.log(result1);
+            })
+            .catch(err => {
+                res.status(500).json(err);
+            })
 
     })
     .catch(err => {console.log(err);
@@ -194,17 +199,16 @@ router.get('/viewItem/:itemId', (req,res,next) => {
 //update items details
 
 router.patch('/updateItem/:itemId', (req, res, next) => {
-    var choiceList = req.body.choiceId.split(' '); 
-    console.log("choice list: "+choiceList)
-    console.log(req.files)
+   // var choiceList = req.body.choiceId.split(' '); 
+   // console.log("choice list: "+choiceList)
+    //console.log(req.files)
     const id = req.params.itemId;
     Item.update({_id: id}, {$set: {
              item_title: req.body.item_title,
              item_description: req.body.item_description,
-           //  item_file: "http://localhost:3002/uploads/items/"+req.file.originalname,
              item_allowence: req.body.item_allowence,
-             category: req.body.item_categoryId,
-             choices: choiceList
+             category: req.body.category,
+             choices: req.body.choices
         }  
     })
     .exec()

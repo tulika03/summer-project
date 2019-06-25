@@ -26,12 +26,11 @@ const jobsiteSchema=mongoose.Schema({
         type:String,
         required:true
     },
-    job_zone_item:[{
-        zone_id:{type:mongoose.Schema.Types.ObjectId, ref:'Zone', required: true},
-        items:[{type:mongoose.Schema.Types.ObjectId, ref:'Item'}]
+    job_zone:[{
+        type:mongoose.Schema.Types.ObjectId, ref:'Zone', required: true
     }],
     job_employee:[{
-       type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true
+       type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
     }]
 });
  
