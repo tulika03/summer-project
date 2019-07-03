@@ -4,10 +4,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const Item = require('./../models/item');
-const checkAuth = require('./../middleware/checkAuth');
-
-require('./../../env');
-
+const checkAuth = require('./../middleware/checkAuth')
+require('./../../env')
 // refernced schemas
 const Choice = require('./../models/choice');
 const Category = require('./../models/category');
@@ -25,7 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 
 // get choice list for items
-router.get('/choiceList', (req,res,next) => {
+router.get('/choiceList', checkAuth, (req,res,next) => {
     Choice.find()
     .populate('category')
     .exec()
@@ -52,7 +50,7 @@ res.status(500).json({
 });
 
 //get categoriesliat for items
-router.get('/categoryList', (req, res, next) => {
+router.get('/categoryList', checkAuth, (req, res, next) => {
     Category.find()
     .exec()
     .then(result => {
@@ -79,7 +77,7 @@ router.get('/categoryList', (req, res, next) => {
 
 
 // add new item
-router.post('/addItem', upload.single('item_file'), (req, res, next) => {
+router.post('/addItem', upload.single('item_file'), checkAuth, (req, res, next) => {
    var choiceList = req.body.choiceId.split(' '); 
    console.log("choice list: "+choiceList)
    console.log("requested file: " + req.file)
@@ -115,9 +113,28 @@ router.post('/addItem', upload.single('item_file'), (req, res, next) => {
 
 // view all the items details
 
+router.get('/viewItem', checkAuth, (req, res, next) => {
+     Item.find()
+    .populate({
+        path: 'choices category'
+    })
+    .exec()
+    .then(result => {
+        if(result.length > 0)
+        {
+            res.status(200).json({
+                result
+            })
+        }
+        else {
+            res.status(404).json({
+                message: 'No details found...',
+                data: result
+            })
+        }
+    })
 
 
- router.get('/viewItem', checkAuth, (req,res,next) => {
     let cat_array=[];
     Item.find()
     .populate('choices')
@@ -125,44 +142,21 @@ router.post('/addItem', upload.single('item_file'), (req, res, next) => {
     .populate('item_jobsite')
     .populate('item_zone')
     .exec()
-    .then(doc => {
-        //console.log(doc)
-        if(doc.length >= 0)
-        {
-            res.status(200).json(doc)
-        }
-        else
         {
             res.status(404).json({message: 'No entries found....'})
         }
-
-        /*
-        
-        cat_array=doc.category;
-        //console.log(cat_array);
-        Category.find({_id: { $in : cat_array}}).exec()
-            .then(result1 => {
-                res.status(200).json({item : doc[0],category :result1});
-               // res.status(200).json(result1);
-               // console.log(result1);
-            })
-            .catch(err => {
-                res.status(500).json(err);
-            })  */
-    })
+   })
     .catch(err => {
         console.log(err)
         res.status(500).json({
              error: err
         })
-    })
-});
+    });
 
 
 // view item detail by id
 
-router.get('/viewItem/:itemId', (req,res,next) => {
-    let cat_array=[];
+router.get('/viewItem/:itemId', checkAuth, (req,res,next) => {
     Item.findById(req.params.itemId)
     .populate('choices')
     .populate('category')
@@ -198,10 +192,10 @@ router.get('/viewItem/:itemId', (req,res,next) => {
 
 //update items details
 
-router.patch('/updateItem/:itemId', (req, res, next) => {
-   // var choiceList = req.body.choiceId.split(' '); 
-   // console.log("choice list: "+choiceList)
-    //console.log(req.files)
+router.patch('/updateItem/:itemId', checkAuth, (req, res, next) => {
+    var choiceList = req.body.choiceId.split(' '); 
+    console.log("choice list: "+choiceList)
+    console.log(req.files)
     const id = req.params.itemId;
     Item.update({_id: id}, {$set: {
              item_title: req.body.item_title,
@@ -228,7 +222,7 @@ router.patch('/updateItem/:itemId', (req, res, next) => {
 
  // change item's file
 
- router.patch('/updateFile/:itemId', upload.single('item_file'), (req,res,next) => {
+ router.patch('/updateFile/:itemId', upload.single('item_file'), checkAuth, (req,res,next) => {
     console.log(req.file)
     const id = req.params.itemId;
     
@@ -254,7 +248,7 @@ router.patch('/updateItem/:itemId', (req, res, next) => {
 
 // delete an item
 
-router.delete('/deleteItem/:itemId', (req, res, next) => {
+router.delete('/deleteItem/:itemId', checkAuth, (req, res, next) => {
     const id = req.params.itemId;
     Item.findOneAndRemove({_id: id})
         .exec()
