@@ -8,6 +8,8 @@ const itemRoutes = require('./api/router/items');
 const employeeRoutes = require('./api/router/employees');
 const zoneRoutes = require('./api/router/zones')
 const todoRoutes = require('./api/router/todos')
+const boardRoutes = require('./api/router/discussionBoards')
+const commentRoutes = require('./api/router/comments')
 //const todoRoutes = require('./api/router/todos')
 //mongoose.connect('mongodb+srv://woodberry-project:woodberry-project@woodeberry-project-nesxf.mongodb.net/test?retryWrites=true')
 
@@ -17,7 +19,6 @@ app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({
     extended: false}))
 app.use(bodyParser.json());
-
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin","*");
 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
@@ -34,6 +35,8 @@ app.use('/employee', employeeRoutes);
 app.use('/item', itemRoutes);
 app.use('/zone', zoneRoutes);
 app.use('/todo',todoRoutes);
+app.use('/board', boardRoutes)
+app.use('/discussion', commentRoutes)
 app.use((req, res,next) => {
     const error = new Error('Not Found');
 error.status = 404;

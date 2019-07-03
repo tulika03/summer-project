@@ -42,7 +42,9 @@ router.post('/Employeelogin', (req, res, next) => {
      if(result) {
          const token = jwt.sign({  
                  employee_password: employee[0].employee_password,
-                 _id: employee[0]._id
+                 _id: employee[0]._id,
+                 employee_email:  employee[0].employee_email,
+                 employee_username:  employee[0].employee_username
              },
              process.env.JWT_KEY,
              {
