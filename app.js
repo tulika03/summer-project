@@ -10,6 +10,7 @@ const zoneRoutes = require('./api/router/zones')
 const todoRoutes = require('./api/router/todos')
 const boardRoutes = require('./api/router/discussionBoards')
 const commentRoutes = require('./api/router/comments')
+const replyRoutes = require('./api/router/replies')
 //const todoRoutes = require('./api/router/todos')
 //mongoose.connect('mongodb+srv://woodberry-project:woodberry-project@woodeberry-project-nesxf.mongodb.net/test?retryWrites=true')
 
@@ -37,6 +38,7 @@ app.use('/zone', zoneRoutes);
 app.use('/todo',todoRoutes);
 app.use('/board', boardRoutes)
 app.use('/discussion', commentRoutes)
+app.use('/reply', replyRoutes)
 app.use((req, res,next) => {
     const error = new Error('Not Found');
 error.status = 404;

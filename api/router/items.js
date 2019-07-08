@@ -133,8 +133,6 @@ router.get('/viewItem', checkAuth, (req, res, next) => {
             })
         }
     })
-
-
     let cat_array=[];
     Item.find()
     .populate('choices')
@@ -142,10 +140,6 @@ router.get('/viewItem', checkAuth, (req, res, next) => {
     .populate('item_jobsite')
     .populate('item_zone')
     .exec()
-        {
-            res.status(404).json({message: 'No entries found....'})
-        }
-   })
     .catch(err => {
         console.log(err)
         res.status(500).json({
@@ -153,6 +147,8 @@ router.get('/viewItem', checkAuth, (req, res, next) => {
         })
     });
 
+   })
+   
 
 // view item detail by id
 
