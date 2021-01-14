@@ -5,6 +5,7 @@ const Employee = require('./../../models/employee');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 
+
 require('./../../../env');
 const checkAuth = require('../../middleware/checkAuth');
 
