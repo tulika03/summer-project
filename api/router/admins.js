@@ -25,7 +25,7 @@ const jobsiteRoutes=require('./admin/jobsites');
  const checkAuth = require('./../middleware/checkAuth')
 require('./../../env');
 
-// add new admin
+// add new admin to the system by an admin
 router.post('/addAdmin', checkAuth, (req, res, next) => {
     Admin.find({admin_email: req.body.admin_email})
         .exec()
